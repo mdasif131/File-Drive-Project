@@ -7,10 +7,12 @@ const Header = () => {
   return (
     <div className="border-b bg-muted py-4">
       <div className="container mx-auto flex justify-between">
-        FileDrive
+        <h1 className="text-xl font-bold">
+          File<span className="text-primary font-black tracking-wide">Drive</span>
+        </h1>
         <div className="flex gap-2">
           <Authenticated>
-          <OrganizationSwitcher />
+            <OrganizationSwitcher />
             <UserButton />
           </Authenticated>
           <Unauthenticated>
