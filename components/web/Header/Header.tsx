@@ -1,5 +1,5 @@
 "use client"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/web/Header/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { OrganizationSwitcher, SignInButton, UserButton } from "@clerk/nextjs"
 import { Authenticated, Unauthenticated } from "convex/react"

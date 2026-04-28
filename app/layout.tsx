@@ -1,9 +1,9 @@
 import { Geist, Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/web/Header/theme-provider"
 import { cn } from "@/lib/utils";
-import ConvexClientProvider from "@/components/web/ConvexClientProvider";
+import ConvexClientProvider from "@/components/web/Header/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 

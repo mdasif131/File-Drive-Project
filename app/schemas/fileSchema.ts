@@ -1,11 +1,13 @@
 import * as z from "zod"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-const ACCEPTED_IMAGE_TYPES = [
+ const ACCEPTED_FILE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
   "image/webp",
+  "text/csv",
+  "application/pdf",
 ]
 
 export const fileSchema = z
@@ -23,8 +25,8 @@ export const fileSchema = z
         "Image must be less than 5MB"
       )
       .refine(
-        (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-        "Only .jpg, .jpeg, .png and .webp formats are supported"
+        (file) => ACCEPTED_FILE_TYPES.includes(file.type),
+        "Only .jpg, .jpeg, .png, pdf, csv and .webp formats are supported"
       ),
   })
   .strict()
