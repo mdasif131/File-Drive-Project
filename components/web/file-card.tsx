@@ -1,10 +1,11 @@
 "use client"
-import { Doc, Id } from "@/convex/_generated/dataModel"
+import { Doc } from "@/convex/_generated/dataModel"
 import {
   EllipsisVertical,
   FileTextIcon,
   GanttChartIcon,
   ImageIcon,
+  StarIcon,
   Trash2,
 } from "lucide-react"
 import { Button } from "../ui/button"
@@ -20,11 +21,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
 
 import { api } from "@/convex/_generated/api"
 import { useMutation } from "convex/react"
+import Image from "next/image"
 import { ReactNode, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -37,11 +40,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog"
-import Image from "next/image"
-import { da } from "zod/locales"
 
 const FileCardACtion = ({ file }: { file: Doc<"files"> }) => {
   const deleteFile = useMutation(api.files.deleteFile)
+  const toggleFavorite = useMutation(api.files.toggleFavorite)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   return (
     <>
@@ -75,6 +77,16 @@ const FileCardACtion = ({ file }: { file: Doc<"files"> }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="p-0">
           <DropdownMenuItem
+            onClick={async () => {
+              await toggleFavorite({ fileId: file._id })
+            }}
+            className="cursor-pointer hover:text-primary!"
+          >
+            <StarIcon />
+            Favorites
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
             onClick={() => setIsConfirmOpen(true)}
             className="text-destructive/90"
           >
@@ -87,7 +99,11 @@ const FileCardACtion = ({ file }: { file: Doc<"files"> }) => {
   )
 }
 
-const FileCard = ({ file }: { file: Doc<"files"> & { fileUrl: string | null } }) => {
+const FileCard = ({
+  file,
+}: {
+  file: Doc<"files"> & { fileUrl: string | null }
+}) => {
   const data = file
   console.log(data)
   const typeIcons = {

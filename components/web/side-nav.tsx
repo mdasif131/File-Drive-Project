@@ -15,7 +15,8 @@ const SideNav = () => {
          <Button
            variant={"link"}
            className={clsx("flex gap-2", {
-             "text-primary": pathname.includes("/dashboard/files"),
+             "border-primary text-primary":
+               pathname.includes("/dashboard/files"),
            })}
          >
            <FileIcon /> All Files
@@ -26,7 +27,9 @@ const SideNav = () => {
          <Button
            variant={"link"}
            className={clsx("flex gap-2", {
-             "text-primary": pathname.includes("/dashboard/favorites"),
+             "border-primary text-primary": pathname.includes(
+               "/dashboard/favorites"
+             ),
            })}
          >
            <StarIcon /> Favorites

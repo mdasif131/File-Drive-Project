@@ -1,9 +1,10 @@
+import FileBrowser from "@/components/web/file-browser"
 
 const FavoritesPage = () => {
   return (
     <div>
       <div>
-        <h1 className="text-4xl font-bold">Favorite Files</h1>
+        <FileBrowser title="Favorite Files" favorites />
       </div>
     </div>
   )
