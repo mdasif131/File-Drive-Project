@@ -11,7 +11,13 @@ import SearchBar from "@/components/web/search-bar"
 import UploadButton from "@/components/web/upload-button"
 import { api } from "@/convex/_generated/api"
 
-export default function FileBrowser({title,favorites}:{title: string, favorites?:boolean}) {
+export default function FileBrowser({
+  title,
+  favoritesOnly,
+}: {
+  title: string
+  favoritesOnly?: boolean
+}) {
   const organization = useOrganization()
   const user = useUser()
   const [query, setQuery] = useState("")
@@ -21,7 +27,11 @@ export default function FileBrowser({title,favorites}:{title: string, favorites?
       ? (organization.organization?.id ?? user.user?.id)
       : undefined
 
-  const files = useQuery(api.files.getFile, orgId ? { orgId, query, favorites } : "skip")
+  const favorites = useQuery(api.files.getAllFavorite, orgId ? { orgId } : 'skip') ?? []
+  const files = useQuery(
+    api.files.getFile,
+    orgId ? { orgId, query, favorites: favoritesOnly } : "skip"
+  )
 
   const isLoading = files === undefined
   const isEmpty = !isLoading && files.length === 0
@@ -73,7 +83,7 @@ export default function FileBrowser({title,favorites}:{title: string, favorites?
       {!isLoading && files.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {files.map((file) => (
-            <FileCard key={file._id} file={file} />
+            <FileCard favorites={favorites} key={file._id} file={file} />
           ))}
         </div>
       )}

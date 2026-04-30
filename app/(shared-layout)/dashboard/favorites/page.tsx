@@ -4,7 +4,7 @@ const FavoritesPage = () => {
   return (
     <div>
       <div>
-        <FileBrowser title="Favorite Files" favorites />
+        <FileBrowser title="Favorite Files" favoritesOnly />
       </div>
     </div>
   )

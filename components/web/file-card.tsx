@@ -1,10 +1,11 @@
 "use client"
-import { Doc } from "@/convex/_generated/dataModel"
+import { Doc, Id } from "@/convex/_generated/dataModel"
 import {
   EllipsisVertical,
   FileTextIcon,
   GanttChartIcon,
   ImageIcon,
+  StarHalf,
   StarIcon,
   Trash2,
 } from "lucide-react"
@@ -41,7 +42,7 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog"
 
-const FileCardACtion = ({ file }: { file: Doc<"files"> }) => {
+const FileCardACtion = ({ file, isFavorited }: { file: Doc<"files">,isFavorited:boolean}) => {
   const deleteFile = useMutation(api.files.deleteFile)
   const toggleFavorite = useMutation(api.files.toggleFavorite)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -82,8 +83,16 @@ const FileCardACtion = ({ file }: { file: Doc<"files"> }) => {
             }}
             className="cursor-pointer hover:text-primary!"
           >
-            <StarIcon />
-            Favorites
+            {isFavorited ? (
+              <span className="flex gap-1 items-center">
+                <StarIcon /> Favorites
+              </span>
+            ) : (
+              <span className="flex gap-1 items-center">
+                <StarHalf /> Unfavorites
+              </span>
+            )}
+      
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -101,16 +110,19 @@ const FileCardACtion = ({ file }: { file: Doc<"files"> }) => {
 
 const FileCard = ({
   file,
+  favorites,
 }: {
   file: Doc<"files"> & { fileUrl: string | null }
+    favorites: Doc<"favorites">[];
 }) => {
   const data = file
-  console.log(data)
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <FileTextIcon />,
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>
+  const isFavorited = favorites.some((favorite)=> favorite.fileId === data._id)
+
   return (
     <Card>
       <CardHeader>
@@ -119,7 +131,7 @@ const FileCard = ({
           {data.name}
         </CardTitle>
         <CardAction>
-          <FileCardACtion file={data} />
+          <FileCardACtion isFavorited={isFavorited} file={data} />
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -136,7 +148,7 @@ const FileCard = ({
           {data.type === "pdf" && <FileTextIcon className="h-20 w-20" />}
         </CardContent>
       </CardContent>
-      <CardFooter className="flex items-center justify-center">
+      <CardFooter className="flex items-center justify-center pt-2">
         <Button
           onClick={() => {
             if (data.fileUrl) {
