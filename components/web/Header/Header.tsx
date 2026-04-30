@@ -3,15 +3,18 @@ import { ThemeToggle } from "@/components/web/Header/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { OrganizationSwitcher, SignInButton, UserButton } from "@clerk/nextjs"
 import { Authenticated, Unauthenticated } from "convex/react"
+import Link from "next/link"
 
 const Header = () => {
   return (
     <div className="border-b bg-muted py-4">
       <div className="container mx-auto flex justify-between">
-        <h1 className="text-xl font-bold">
-          File
-          <span className="font-black tracking-wide text-primary">Drive</span>
-        </h1>
+        <Link href={"/"}>
+          <h1 className="text-xl font-bold">
+            File
+            <span className="font-black tracking-wide text-primary">Drive</span>
+          </h1>
+        </Link>
         <div className="flex items-center gap-2">
           <div className="flex gap-2">
             <Authenticated>
@@ -24,7 +27,7 @@ const Header = () => {
               </SignInButton>
             </Unauthenticated>
           </div>
-          <ThemeToggle/>
+          <ThemeToggle />
         </div>
       </div>
     </div>

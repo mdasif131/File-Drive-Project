@@ -1,7 +1,8 @@
+import { query } from "@/convex/_generated/server"
 import * as z from "zod"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
- const ACCEPTED_FILE_TYPES = [
+const ACCEPTED_FILE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
@@ -31,3 +32,6 @@ export const fileSchema = z
   })
   .strict()
 
+export const searchSchema = z.object({
+  query: z.string().min(0).max(200),
+})

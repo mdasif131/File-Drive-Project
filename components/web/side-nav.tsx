@@ -1,0 +1,50 @@
+"use client"
+
+import { usePathname } from "next/navigation"
+import Link from "next/link"
+import { Button } from "../ui/button"
+import clsx from "clsx"
+import { FileIcon, StarIcon, TrashIcon } from "lucide-react"
+
+const SideNav = () => {
+   const pathname = usePathname()
+
+   return (
+     <div className="flex w-40 flex-col gap-4">
+       <Link href="/dashboard/files">
+         <Button
+           variant={"link"}
+           className={clsx("flex gap-2", {
+             "text-primary": pathname.includes("/dashboard/files"),
+           })}
+         >
+           <FileIcon /> All Files
+         </Button>
+       </Link>
+
+       <Link href="/dashboard/favorites">
+         <Button
+           variant={"link"}
+           className={clsx("flex gap-2", {
+             "text-primary": pathname.includes("/dashboard/favorites"),
+           })}
+         >
+           <StarIcon /> Favorites
+         </Button>
+       </Link>
+
+       <Link href="/dashboard/trash">
+         <Button
+           variant={"link"}
+           className={clsx("flex gap-2", {
+             "text-primary": pathname.includes("/dashboard/trash"),
+           })}
+         >
+           <TrashIcon /> Trash
+         </Button>
+       </Link>
+     </div>
+   )
+}
+
+export default SideNav
