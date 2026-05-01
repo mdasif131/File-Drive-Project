@@ -28,9 +28,10 @@ import {
 } from "../ui/dropdown-menu"
 
 import { api } from "@/convex/_generated/api"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import Image from "next/image"
 import { ReactNode, useState } from "react"
+import { format, formatDistance, formatRelative, subDays } from "date-fns"
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -43,6 +44,7 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog"
 import { useAuth } from "@clerk/nextjs"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
 const FileCardACtion = ({
   file,
@@ -53,12 +55,12 @@ const FileCardACtion = ({
 }) => {
   const deleteFile = useMutation(api.files.deleteFile)
   const restoreFile = useMutation(api.files.deleteFileRestore)
+ 
   const toggleFavorite = useMutation(api.files.toggleFavorite)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const { orgRole } = useAuth()
   const isAdmin = orgRole === "org:admin"
   const isMember = orgRole === "org:member"
-
   return (
     <>
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
@@ -166,6 +168,9 @@ const FileCard = ({
   favorites: Doc<"favorites">[]
 }) => {
   const data = file
+   const userProfile = useQuery(api.users.getUserProfile, {
+     userId: data.userId,
+   })
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <FileTextIcon />,
@@ -174,7 +179,7 @@ const FileCard = ({
   const isFavorited = favorites.some((favorite) => favorite.fileId === data._id)
 
   return (
-    <Card>
+    <Card className="py-4">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {typeIcons[data.type]}
@@ -198,16 +203,30 @@ const FileCard = ({
           {data.type === "pdf" && <FileTextIcon className="h-20 w-20" />}
         </CardContent>
       </CardContent>
-      <CardFooter className="flex items-center justify-center pt-2">
-        <Button
-          onClick={() => {
-            if (data.fileUrl) {
-              window.open(data.fileUrl, "_blank")
-            }
-          }}
-        >
-          Download
-        </Button>
+      <CardFooter className="flex-col px-2 pt-2">
+        <div className="flex w-full items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Avatar className="size-8">
+              <AvatarImage src={userProfile?.image} />
+              <AvatarFallback>AS</AvatarFallback>
+            </Avatar>
+            <h3 className="text-muted-foreground hover:text-foreground">
+              {userProfile?.name}
+            </h3>
+          </div>
+          <Button
+            onClick={() => {
+              if (data.fileUrl) {
+                window.open(data.fileUrl, "_blank")
+              }
+            }}
+          >
+            Download
+          </Button>
+        </div>
+        <div className="pt-2">
+          <p className="text-muted-foreground">{`Uploaded on: ${formatRelative(new Date(file._creationTime), new Date(file._creationTime))}`}</p>
+        </div>
       </CardFooter>
     </Card>
   )
