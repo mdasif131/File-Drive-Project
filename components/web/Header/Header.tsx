@@ -7,7 +7,7 @@ import Link from "next/link"
 
 const Header = () => {
   return (
-    <div className="border-b bg-muted py-4">
+    <div className="border-b  py-4 z-10 bg-transparent h-auto">
       <div className="container mx-auto flex justify-between">
         <Link href={"/"}>
           <h1 className="text-xl font-bold">

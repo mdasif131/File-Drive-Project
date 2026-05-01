@@ -14,9 +14,11 @@ import { api } from "@/convex/_generated/api"
 export default function FileBrowser({
   title,
   favoritesOnly,
+  deletedOnly,
 }: {
   title: string
   favoritesOnly?: boolean
+  deletedOnly?: boolean
 }) {
   const organization = useOrganization()
   const user = useUser()
@@ -27,10 +29,11 @@ export default function FileBrowser({
       ? (organization.organization?.id ?? user.user?.id)
       : undefined
 
-  const favorites = useQuery(api.files.getAllFavorite, orgId ? { orgId } : 'skip') ?? []
+  const favorites =
+    useQuery(api.files.getAllFavorite, orgId ? { orgId } : "skip") ?? []
   const files = useQuery(
     api.files.getFile,
-    orgId ? { orgId, query, favorites: favoritesOnly } : "skip"
+    orgId ? { orgId, query, favorites: favoritesOnly, deletedOnly } : "skip"
   )
 
   const isLoading = files === undefined

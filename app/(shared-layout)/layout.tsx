@@ -6,9 +6,9 @@ export default function SharedLayout({
   children: React.ReactNode
 }) {
   return (
-    <>
+    <div>
       <Header />
       {children}
-    </>
+    </div>
   )
 }

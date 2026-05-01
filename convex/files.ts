@@ -21,7 +21,7 @@ async function hasAccessToOrg(
     return null;
 }
   const hasAccess =
-    user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId)
+    user.orgIds.some(item => item.orgId === orgId) || user.tokenIdentifier.includes(orgId)
   if (!hasAccess) {
     return null;
   }
@@ -85,13 +85,10 @@ export const getFile = query({
     orgId: v.string(),
     query: v.optional(v.string()),
     favorites: v.optional(v.boolean()),
+    deletedOnly: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-   
-    const hasAccess = await hasAccessToOrg(
-      ctx,
-      args.orgId
-    )
+    const hasAccess = await hasAccessToOrg(ctx, args.orgId)
     if (!hasAccess) {
       return []
     }
@@ -131,7 +128,13 @@ export const getFile = query({
         favorites.some((favorite) => favorite.fileId === file._id)
       )
     }
-    return filesWithUrls
+    if (args.deletedOnly) {
+      filesWithUrls = filesWithUrls.filter((file) => file.shouldDeleted
+      )
+    } else {
+      filesWithUrls = filesWithUrls.filter((file) => !file.shouldDeleted)
+    }
+    return filesWithUrls;
   },
 })
 export const deleteFile = mutation({
@@ -141,7 +144,29 @@ export const deleteFile = mutation({
     if (!access) {
       throw new ConvexError("no access to delete a file")
     }
-    return await ctx.db.delete(args.fileId)
+    const isAdmin = access.user.orgIds.find((org) => org.orgId === access.file.orgId)?.role === "admin"
+    if (!isAdmin) {
+      throw new ConvexError("no access to files")
+    }
+    return await ctx.db.patch(args.fileId, {
+      shouldDeleted: true,
+    })
+  },
+})
+export const deleteFileRestore = mutation({
+  args: { fileId: v.id("files") },
+  handler: async (ctx, args) => {
+    const access = await hasAccessToFile(ctx, args.fileId)
+    if (!access) {
+      throw new ConvexError("no access to delete a file")
+    }
+    const isAdmin = access.user.orgIds.find((org) => org.orgId === access.file.orgId)?.role === "admin"
+    if (!isAdmin) {
+      throw new ConvexError("no access to files")
+    }
+    return await ctx.db.patch(args.fileId, {
+      shouldDeleted: false,
+    })
   },
 })
 export const toggleFavorite = mutation({

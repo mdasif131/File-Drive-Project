@@ -8,6 +8,7 @@ import {
   StarHalf,
   StarIcon,
   Trash2,
+  UndoIcon,
 } from "lucide-react"
 import { Button } from "../ui/button"
 import {
@@ -41,11 +42,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog"
+import { useAuth } from "@clerk/nextjs"
 
-const FileCardACtion = ({ file, isFavorited }: { file: Doc<"files">,isFavorited:boolean}) => {
+const FileCardACtion = ({
+  file,
+  isFavorited,
+}: {
+  file: Doc<"files">
+  isFavorited: boolean
+}) => {
   const deleteFile = useMutation(api.files.deleteFile)
+  const restoreFile = useMutation(api.files.deleteFileRestore)
   const toggleFavorite = useMutation(api.files.toggleFavorite)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const { orgRole } = useAuth()
+  const isAdmin = orgRole === "org:admin"
+  const isMember = orgRole === "org:member"
+
   return (
     <>
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
@@ -53,8 +66,7 @@ const FileCardACtion = ({ file, isFavorited }: { file: Doc<"files">,isFavorited:
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account from our servers.
+              This action will mark the file for our deletion process. files are deleted periodically
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -77,31 +89,69 @@ const FileCardACtion = ({ file, isFavorited }: { file: Doc<"files">,isFavorited:
           <EllipsisVertical className="size-5.5 cursor-pointer text-primary/90" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="p-0">
-          <DropdownMenuItem
-            onClick={async () => {
-              await toggleFavorite({ fileId: file._id })
-            }}
-            className="cursor-pointer hover:text-primary!"
-          >
-            {isFavorited ? (
-              <span className="flex gap-1 items-center">
-                <StarIcon /> Favorites
-              </span>
-            ) : (
-              <span className="flex gap-1 items-center">
-                <StarHalf /> Unfavorites
-              </span>
-            )}
-      
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setIsConfirmOpen(true)}
-            className="text-destructive/90"
-          >
-            <Trash2 />
-            Delete
-          </DropdownMenuItem>
+          {isAdmin ? (
+            <>
+              <DropdownMenuItem
+                onClick={async () => {
+                  await toggleFavorite({ fileId: file._id })
+                }}
+                className="cursor-pointer hover:text-primary!"
+              >
+                {isFavorited ? (
+                  <span className="flex items-center gap-1">
+                    <StarIcon /> Favorites
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <StarHalf /> Unfavorites
+                  </span>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={async() => {
+                  if (file.shouldDeleted) {
+                   await restoreFile({fileId: file._id})
+                  } else {
+                    setIsConfirmOpen(true)
+                  }
+                }}
+                className="text-destructive/90"
+              >
+                {file.shouldDeleted ? (
+                  <div className="flex gap-1 items-center text-primary/80">
+                    <UndoIcon /> Restore
+                  </div>
+                ) : (
+                  <div className="flex gap-1 items-center">
+                    <Trash2 />
+                    Trash
+                  </div>
+                )}
+              </DropdownMenuItem>
+            </>
+          ) : isMember ? (
+            <>
+              <DropdownMenuItem
+                onClick={async () => {
+                  await toggleFavorite({ fileId: file._id })
+                }}
+                className="cursor-pointer hover:text-primary!"
+              >
+                {isFavorited ? (
+                  <span className="flex items-center gap-1">
+                    <StarIcon /> Favorites
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <StarHalf /> Unfavorites
+                  </span>
+                )}
+              </DropdownMenuItem>
+            </>
+          ) : (
+            <p>Unauthorize</p>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>
@@ -113,7 +163,7 @@ const FileCard = ({
   favorites,
 }: {
   file: Doc<"files"> & { fileUrl: string | null }
-    favorites: Doc<"favorites">[];
+  favorites: Doc<"favorites">[]
 }) => {
   const data = file
   const typeIcons = {
@@ -121,7 +171,7 @@ const FileCard = ({
     pdf: <FileTextIcon />,
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>
-  const isFavorited = favorites.some((favorite)=> favorite.fileId === data._id)
+  const isFavorited = favorites.some((favorite) => favorite.fileId === data._id)
 
   return (
     <Card>
