@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values"
 import { Id } from "./_generated/dataModel"
-import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server"
+import { internalMutation, mutation, MutationCtx, query, QueryCtx } from "./_generated/server"
 import { fileTypes } from "./schema"
 
 async function hasAccessToOrg(
@@ -135,6 +135,20 @@ export const getFile = query({
       filesWithUrls = filesWithUrls.filter((file) => !file.shouldDeleted)
     }
     return filesWithUrls;
+  },
+})
+
+export const deleteAllFiles = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const files = await ctx.db.query("files").withIndex("by_shouldDelete", q => q.eq("shouldDeleted", true)).collect();
+    
+    await Promise.all(files.map(async (file) => {
+      if (file.fileId) {
+        await ctx.storage.delete(file.fileId)
+      }
+      return await ctx.db.delete(file._id)
+    }))
   },
 })
 export const deleteFile = mutation({
