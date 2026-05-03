@@ -2,7 +2,7 @@
 
 import { useOrganization, useUser } from "@clerk/nextjs"
 import { useQuery } from "convex/react"
-import { Loader2, SearchX } from "lucide-react"
+import { GridIcon, Loader2, RowsIcon, SearchX } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 
@@ -12,8 +12,8 @@ import UploadButton from "@/components/web/upload-button"
 import { api } from "@/convex/_generated/api"
 import { DataTable } from "./DataTable/file-table"
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { columns } from "./DataTable/columns"
-
 export default function FileBrowser({
   title,
   favoritesOnly,
@@ -55,11 +55,39 @@ export default function FileBrowser({
           <UploadButton />
         </div>
       </div>
+      <Tabs defaultValue="grid" className="flex-col ">
+        <TabsList className="mb-4">
+          <TabsTrigger
+            value="grid"
+            className="flex items-center gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            <GridIcon />
+            grid
+          </TabsTrigger>
+          <TabsTrigger value="table" className="flex items-center  data-[state=active]:bg-primary
+    data-[state=active]:text-primary-foreground">
+            <RowsIcon />
+            table
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="grid">
+          {!isLoading && modifiedFiles.length > 0 && (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {modifiedFiles.map((file) => (
+                <FileCard key={file._id} file={file} />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+        <TabsContent value="table">
+          <DataTable columns={columns} data={modifiedFiles ?? []} />
+        </TabsContent>
+      </Tabs>
       {isLoading && (
         <div className="mt-24 flex w-full flex-col items-center gap-8">
           <Loader2 className="h-32 w-32 animate-spin text-muted-foreground/50" />
           <p className="text-2xl text-muted-foreground">
-            Loading your library...
+            Loading your files...
           </p>
         </div>
       )}
@@ -87,15 +115,6 @@ export default function FileBrowser({
               <UploadButton />
             </>
           )}
-        </div>
-      )}
-
-      <DataTable columns={columns} data={modifiedFiles ?? []} />
-      {!isLoading && modifiedFiles.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {modifiedFiles.map((file) => (
-            <FileCard key={file._id} file={file} />
-          ))}
         </div>
       )}
     </div>
