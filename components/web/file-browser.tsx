@@ -10,6 +10,9 @@ import FileCard from "@/components/web/file-card"
 import SearchBar from "@/components/web/search-bar"
 import UploadButton from "@/components/web/upload-button"
 import { api } from "@/convex/_generated/api"
+import { DataTable } from "./DataTable/file-table"
+
+import { columns } from "./DataTable/columns"
 
 export default function FileBrowser({
   title,
@@ -35,9 +38,13 @@ export default function FileBrowser({
     api.files.getFile,
     orgId ? { orgId, query, favorites: favoritesOnly, deletedOnly } : "skip"
   )
+  const modifiedFiles = files?.map((file) => ({
+    ...file,
+    isFavorited: (favorites ?? []).some((favorite)=> favorite.fileId === file._id)
+  }))
 
-  const isLoading = files === undefined
-  const isEmpty = !isLoading && files.length === 0
+  const isLoading = modifiedFiles === undefined
+  const isEmpty = !isLoading && modifiedFiles.length === 0
 
   return (
     <div className="w-full">
@@ -83,10 +90,11 @@ export default function FileBrowser({
         </div>
       )}
 
-      {!isLoading && files.length > 0 && (
+      <DataTable columns={columns} data={modifiedFiles ?? []} />
+      {!isLoading && modifiedFiles.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {files.map((file) => (
-            <FileCard favorites={favorites} key={file._id} file={file} />
+          {modifiedFiles.map((file) => (
+            <FileCard key={file._id} file={file} />
           ))}
         </div>
       )}
