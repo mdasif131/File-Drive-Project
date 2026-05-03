@@ -8,7 +8,7 @@ const nextConfig = {
         port: "",
       },
       {
-        hostname: "good-lyrebird-850.convex.cloud",
+        hostname: "sensible-bee-680.convex.cloud",
         protocol: "https",
         port: "",
       },
