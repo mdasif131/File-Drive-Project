@@ -25,7 +25,7 @@ import {
   UndoIcon,
 } from "lucide-react"
 import { Doc } from "@/convex/_generated/dataModel"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useState } from "react"
 import { useAuth } from "@clerk/nextjs"
@@ -39,9 +39,10 @@ export const FileCardACtion = ({
   const restoreFile = useMutation(api.files.deleteFileRestore)
 
   const toggleFavorite = useMutation(api.files.toggleFavorite)
+  const me = useQuery(api.users.getMe)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const { orgRole } = useAuth()
-  const isAdmin = orgRole === "org:admin"
+  const isAdmin = orgRole === "org:admin" || file.userId === me?._id
   const isMember = orgRole === "org:member"
   return (
     <>
@@ -84,11 +85,11 @@ export const FileCardACtion = ({
               >
                 {file?.isFavorited ? (
                   <span className="flex items-center gap-1">
-                    <StarIcon /> Favorites
+                    <StarIcon /> Unfavorites
                   </span>
                 ) : (
                   <span className="flex items-center gap-1">
-                    <StarHalf /> Unfavorites
+                    <StarHalf /> Favorites
                   </span>
                 )}
               </DropdownMenuItem>
@@ -137,11 +138,11 @@ export const FileCardACtion = ({
               >
                 {file?.isFavorited ? (
                   <span className="flex items-center gap-1">
-                    <StarIcon /> Favorites
+                    <StarIcon /> Unfavorites
                   </span>
                 ) : (
                   <span className="flex items-center gap-1">
-                    <StarHalf /> Unfavorites
+                    <StarHalf /> Favorites
                   </span>
                 )}
               </DropdownMenuItem>

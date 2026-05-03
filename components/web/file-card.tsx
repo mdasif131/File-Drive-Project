@@ -41,7 +41,7 @@ const FileCard = ({file}: {
           {data.name}
         </CardTitle>
         <CardAction>
-          <FileCardACtion  file={data} />
+          <FileCardACtion file={data} />
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -59,9 +59,9 @@ const FileCard = ({file}: {
         </CardContent>
       </CardContent>
       <CardFooter className="flex-col px-2 pt-2">
-        <div className="flex w-full items-center justify-between gap-2">
+        <div className="flex flex-col w-full items-center justify-center gap-2">
           <div className="flex items-center gap-2">
-            <Avatar className="size-8">
+            <Avatar className="size-7">
               <AvatarImage src={userProfile?.image} />
               <AvatarFallback>AS</AvatarFallback>
             </Avatar>
@@ -69,10 +69,7 @@ const FileCard = ({file}: {
               {userProfile?.name}
             </h3>
           </div>
-         
-        </div>
-        <div className="pt-2">
-          <p className="text-muted-foreground">{`Uploaded on: ${formatRelative(new Date(file._creationTime), new Date())}`}</p>
+          <p className="text-muted-foreground font-stretch-50%">{`Uploaded on: ${formatRelative(new Date(file._creationTime), new Date())}`}</p>
         </div>
       </CardFooter>
     </Card>

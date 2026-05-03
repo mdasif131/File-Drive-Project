@@ -13,7 +13,17 @@ import { api } from "@/convex/_generated/api"
 import { DataTable } from "./DataTable/file-table"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { columns } from "./DataTable/columns"
+import { Doc } from "@/convex/_generated/dataModel"
+import { Label } from "../ui/label"
 export default function FileBrowser({
   title,
   favoritesOnly,
@@ -26,6 +36,7 @@ export default function FileBrowser({
   const organization = useOrganization()
   const user = useUser()
   const [query, setQuery] = useState("")
+  const [type, setType] = useState<Doc<"files">["type"] | "all">("all")
 
   const orgId =
     organization.isLoaded && user.isLoaded
@@ -34,15 +45,27 @@ export default function FileBrowser({
 
   const favorites =
     useQuery(api.files.getAllFavorite, orgId ? { orgId } : "skip") ?? []
+  const fileType: Doc<"files">["type"] | undefined = type === "all" ? undefined : type
   const files = useQuery(
     api.files.getFile,
-    orgId ? { orgId, query, favorites: favoritesOnly, deletedOnly } : "skip"
+    orgId
+      ? {
+          orgId,
+          query,
+          favorites: favoritesOnly,
+          deletedOnly,
+          type: fileType,
+        }
+      : "skip"
   )
   const modifiedFiles = files?.map((file) => ({
     ...file,
-    isFavorited: (favorites ?? []).some((favorite)=> favorite.fileId === file._id)
+    isFavorited: (favorites ?? []).some(
+      (favorite) => favorite.fileId === file._id
+    ),
   }))
 
+ 
   const isLoading = modifiedFiles === undefined
   const isEmpty = !isLoading && modifiedFiles.length === 0
 
@@ -55,21 +78,43 @@ export default function FileBrowser({
           <UploadButton />
         </div>
       </div>
-      <Tabs defaultValue="grid" className="flex-col ">
-        <TabsList className="mb-4">
-          <TabsTrigger
-            value="grid"
-            className="flex items-center gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            <GridIcon />
-            grid
-          </TabsTrigger>
-          <TabsTrigger value="table" className="flex items-center  data-[state=active]:bg-primary
-    data-[state=active]:text-primary-foreground">
-            <RowsIcon />
-            table
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="grid" className="flex-col">
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger
+              value="grid"
+              className="flex items-center gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <GridIcon />
+              grid
+            </TabsTrigger>
+            <TabsTrigger
+              value="table"
+              className="flex items-center data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <RowsIcon />
+              table
+            </TabsTrigger>
+          </TabsList>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="type-file">
+              Filter by type:
+            </Label>
+            <Select value={type} onValueChange={(newType)=> setType(newType as Doc<"files">["type"] | "all")}>
+              <SelectTrigger id="type-file" className="w-45">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="csv">CSV</SelectItem>
+                  <SelectItem value="pdf">Pdf</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <TabsContent value="grid">
           {!isLoading && modifiedFiles.length > 0 && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

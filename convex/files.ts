@@ -1,5 +1,5 @@
 import { ConvexError, v } from "convex/values"
-import { Id } from "./_generated/dataModel"
+import { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, mutation, MutationCtx, query, QueryCtx } from "./_generated/server"
 import { fileTypes } from "./schema"
 
@@ -87,6 +87,7 @@ export const getFile = query({
     query: v.optional(v.string()),
     favorites: v.optional(v.boolean()),
     deletedOnly: v.optional(v.boolean()),
+    type: v.optional(fileTypes),
   },
   handler: async (ctx, args) => {
     const hasAccess = await hasAccessToOrg(ctx, args.orgId)
@@ -135,6 +136,9 @@ export const getFile = query({
     } else {
       filesWithUrls = filesWithUrls.filter((file) => !file.shouldDeleted)
     }
+    if (args.type) {
+      filesWithUrls = filesWithUrls.filter((file)=> file.type === args.type)
+    }
     return filesWithUrls;
   },
 })
@@ -159,15 +163,22 @@ export const deleteFile = mutation({
     if (!access) {
       throw new ConvexError("no access to delete a file")
     }
-    const isAdmin = access.user.orgIds.find((org) => org.orgId === access.file.orgId)?.role === "admin"
-    if (!isAdmin) {
-      throw new ConvexError("no access to files")
-    }
+    canAccessDeleteFile(access.user, access.file)
+    
     return await ctx.db.patch(args.fileId, {
       shouldDeleted: true,
     })
   },
 })
+const canAccessDeleteFile = (user: Doc<"users">, file: Doc<"files">) => {
+  const canDelete =
+    file.userId === user._id ||
+    user.orgIds.find((org) => org.orgId === file.orgId)?.role ===
+      "admin"
+  if (!canDelete) {
+    throw new ConvexError("no access to delete this files")
+  }
+}
 export const deleteFileRestore = mutation({
   args: { fileId: v.id("files") },
   handler: async (ctx, args) => {
@@ -175,10 +186,7 @@ export const deleteFileRestore = mutation({
     if (!access) {
       throw new ConvexError("no access to delete a file")
     }
-    const isAdmin = access.user.orgIds.find((org) => org.orgId === access.file.orgId)?.role === "admin"
-    if (!isAdmin) {
-      throw new ConvexError("no access to files")
-    }
+    canAccessDeleteFile(access.user, access.file)
     return await ctx.db.patch(args.fileId, {
       shouldDeleted: false,
     })
