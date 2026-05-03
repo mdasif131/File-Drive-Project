@@ -12,14 +12,12 @@ export default function dashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <main className="container mx-auto pt-12">
-          <div className="flex">
-           <SideNav/>
-    
-            <div className="w-full">
-              {children}
-            </div>
-          </div>
-        </main>
+    <main className="container mx-auto min-h-screen pt-12">
+      <div className="flex">
+        <SideNav />
+
+        <div className="w-full">{children}</div>
+      </div>
+    </main>
   )
 }
