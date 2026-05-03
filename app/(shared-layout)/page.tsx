@@ -1,3 +1,4 @@
+
 import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
   authors: [{ name: "MD ASIF CHOWDHURY" }],
 }
 
-export default function LandingPage() {
+export default  function LandingPage() {
+
   return (
     <div className="relative min-h-screen">
       <div className="relative isolate px-6 pt-14 lg:px-8">
@@ -46,12 +48,16 @@ export default function LandingPage() {
           </p>
 
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link
-              href="/dashboard/files"
-              className="rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-green-500 hover:shadow-green-500/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-            >
-              Get started
-            </Link>
+           
+              <Link
+                href="/dashboard/files"
+                className="rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-green-500 hover:shadow-green-500/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+              >
+                Get started
+              </Link>
+           
+              
+          
 
             <a href="#" className="text-sm font-semibold text-muted-foreground">
               Learn more →

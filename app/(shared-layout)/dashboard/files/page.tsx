@@ -1,6 +1,8 @@
 import FileBrowser from "@/components/web/file-browser"
-
-const FilePage = () => {
+import { auth } from "@clerk/nextjs/server"
+const FilePage = async () => {
+  const { isAuthenticated, redirectToSignIn} = await auth()
+  if (!isAuthenticated) return redirectToSignIn()
   return (
     <div>
       <FileBrowser title={"Your Files"} />
